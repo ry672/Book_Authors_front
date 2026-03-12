@@ -1,0 +1,121 @@
+/* * {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+li {
+    list-style: none;
+}
+
+.nav {
+    background-color: #173F5F;
+    color: #FFFF;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-end;
+    outline: none;
+    padding: 20px 50px;
+    gap: 50px;
+}
+
+.nav_button {
+    background: none;
+    border: none;
+    font-size: 19px;
+    color: #D1D1D1;
+}
+.main {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 70px;
+    background: linear-gradient(180deg,#FFE5E5 0%,#F5FFFE 22%, #FFFFFF 55%, #FFFFFF 100%);
+}
+.container_main {
+    width: 500px;
+    color: #393280;
+    
+}
+.img_main {
+    width: 402px;
+    height: 488px;
+
+}
+.container_main h1 {
+    font-size: 60px;
+}
+.container_main h2 {
+    font-size: 22px;
+    margin-top: 50px;
+}
+.main_authors, .main_books {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 0;
+    flex-direction: column;
+    
+}
+.input_authors, .input_books {
+    background: none;
+    border: none;
+    border-bottom: 2px solid #6F6F6F;
+    padding: 5px;
+    width: 90%;
+    outline: none;
+    list-style: none;
+}
+.input_container {
+    background-color: #F7FCFC;
+    width: 70%;
+    padding: 30px;
+}
+
+input::placeholder {
+    color: #7A7A7A;
+    font-size: 18px;
+}
+
+.data_authors, .data_books {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+.page {
+    padding: 3px 8px;
+    color: #111111;
+    background-color: #FFFFFF;
+    margin: 5px;
+    border-radius: 30px;
+    font-size: 14px;
+    border: #6F6F6F 1px solid;
+}
+.page_btn_prev {
+    background-color: none;
+    border: none;
+    padding: 3px;
+
+}
+
+.page_btn_next {
+    transform: rotate(180deg); */
+    /* background-color: none;
+    border: none;
+    padding: 3px;
+ 
+}
+.pagnatation {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+.imgnext {
+    width: 12px;
+    height: 12px;
+}
+.imgprev {
+    width: 15px;
+    height: 15px;
+} */
