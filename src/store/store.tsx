@@ -3,6 +3,7 @@ import { authorApi } from "./Api/AuthorApi";
 import authorReducer from "./Slice/authorSlice";
 import { bookApi } from "./Api/BookApi";
 import { categoryApi } from "./Api/CategoryApi";
+import { authApi } from "./Api/AuthApi";
 
 const AUTHOR_KEY = "author_state_v1";
 
@@ -21,6 +22,7 @@ export const store = configureStore({
     [authorApi.reducerPath]: authorApi.reducer,
     [bookApi.reducerPath]: bookApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
   preloadedState: (() => {
     const savedAuthor = loadAuthorState();
@@ -30,7 +32,8 @@ export const store = configureStore({
     getDefaultMiddleware().concat(
       authorApi.middleware,
       bookApi.middleware,
-      categoryApi.middleware
+      categoryApi.middleware,
+      authApi.middleware
     ),
 });
 

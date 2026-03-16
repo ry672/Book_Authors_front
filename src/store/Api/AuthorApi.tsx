@@ -1,7 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { RootState } from "../store";
 import type { BookResponse } from "../Slice/bookSlice";
 
-export interface AuthorResponse {
+export interface Author {
   id: number;
   name: string;
   full_name: string;
@@ -9,9 +10,10 @@ export interface AuthorResponse {
   country?: string;
   is_deleted: boolean;
   author_photo?: string | null;
+  email?: string;
   updatedAt: string;
   createdAt: string;
-  books: BookResponse[];
+  books?: BookResponse[];
 }
 
 export interface AuthorPayload {
@@ -19,7 +21,7 @@ export interface AuthorPayload {
   page: number;
   take: number;
   pages: number;
-  rows: AuthorResponse[];
+  rows: Author[];
 }
 
 export type GetAuthorsArgs = {
@@ -59,25 +61,15 @@ const buildAuthorFormData = (
 ) => {
   const formData = new FormData();
 
-  if (data.name !== undefined) {
-    formData.append("name", data.name.trim());
-  }
-
-  if (data.full_name !== undefined) {
+  if (data.name !== undefined) formData.append("name", data.name.trim());
+  if (data.full_name !== undefined)
     formData.append("full_name", data.full_name.trim());
-  }
-
-  if (data.description !== undefined) {
+  if (data.description !== undefined)
     formData.append("description", data.description.trim());
-  }
-
-  if (data.country !== undefined) {
+  if (data.country !== undefined)
     formData.append("country", data.country.trim());
-  }
-
-  if (data.remove_photo !== undefined) {
+  if (data.remove_photo !== undefined)
     formData.append("remove_photo", data.remove_photo);
-  }
 
   if (file) {
     formData.append("file", file);
@@ -90,11 +82,17 @@ export const authorApi = createApi({
   reducerPath: "authorApi",
   baseQuery: fetchBaseQuery({
     baseUrl: API_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).author.accessToken;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   tagTypes: ["Authors", "Author"],
-
   endpoints: (builder) => ({
-    postAuthor: builder.mutation<AuthorResponse, CreateAuthorRequest>({
+    postAuthor: builder.mutation<Author, CreateAuthorRequest>({
       query: ({ data, file }) => ({
         url: "/author",
         method: "POST",
@@ -127,7 +125,7 @@ export const authorApi = createApi({
       keepUnusedDataFor: 300,
     }),
 
-    getAuthorById: builder.query<AuthorResponse, number>({
+    getAuthorById: builder.query<Author, number>({
       query: (id) => ({
         url: `/author/${id}`,
         method: "GET",
@@ -136,7 +134,7 @@ export const authorApi = createApi({
       keepUnusedDataFor: 300,
     }),
 
-    patchAuthor: builder.mutation<AuthorResponse, PatchAuthorsArgs>({
+    patchAuthor: builder.mutation<Author, PatchAuthorsArgs>({
       query: ({ id, data, file }) => ({
         url: `/author/${id}`,
         method: "PATCH",

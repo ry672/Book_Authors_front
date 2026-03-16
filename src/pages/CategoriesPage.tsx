@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store";
+
 import { Pagination } from "../components/Pagnatation";
 import { CreateCategoryAside } from "../components/CreateCategory";
 import { CategoryFiltersAside } from "../components/CategoryFilter";
@@ -6,6 +10,8 @@ import { UpdateCategoryAside } from "../components/UpdateCategory";
 import {
   useDeleteCategoryMutation,
   useGetCategoryQuery,
+  type CategoryResponse,
+  type CategoryPayload,
 } from "../store/Api/CategoryApi";
 import plisIcon from "../images/icons8-plus-24.png";
 import { DeleteConfirm } from "../components/DeleteConfirm";
@@ -16,14 +22,26 @@ export const CategoryPage = () => {
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-
   const [editId, setEditId] = useState<number | null>(null);
+
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  const [search, setSearch] = useState("");
+
+  const navigate = useNavigate();
+  const accessToken = useSelector(
+    (state: RootState) => state.author.accessToken
+  );
+
   const [deleteCategory, { isLoading: isDeleting }] =
     useDeleteCategoryMutation();
 
-  const [search, setSearch] = useState("");
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  useEffect(() => {
+    if (!accessToken) {
+      navigate("/", { replace: true });
+    }
+  }, [accessToken, navigate]);
 
   const queryArgs = useMemo(
     () => ({
@@ -34,12 +52,13 @@ export const CategoryPage = () => {
     [search, page, take]
   );
 
-  const { data, isLoading, isError } = useGetCategoryQuery(queryArgs);
+  const { data, isLoading, isError } = useGetCategoryQuery(queryArgs, {
+    skip: !accessToken,
+  });
 
-  const items = Array.isArray(data) ? data : (data as any)?.rows ?? [];
-  const totalPages = Array.isArray(data)
-    ? 1
-    : Math.max((data as any)?.pages ?? 1, 1);
+  const payload = data as CategoryPayload | undefined;
+  const items: CategoryResponse[] = payload?.rows ?? [];
+  const totalPages = Math.max(payload?.pages ?? 1, 1);
 
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
@@ -83,6 +102,10 @@ export const CategoryPage = () => {
       console.log("Delete failed", e);
     }
   };
+
+  if (!accessToken) {
+    return null;
+  }
 
   return (
     <>
@@ -151,8 +174,8 @@ export const CategoryPage = () => {
             {!isLoading &&
               !isError &&
               items
-                ?.filter((c: any) => c.is_deleted === false)
-                .map((c: any) => (
+                .filter((c) => c.is_deleted === false)
+                .map((c) => (
                   <tr key={c.id} className="text-gray-500">
                     <th className="border-b border-[#2D3748] px-4 py-1 text-left text-[12px] text-white">
                       {c.name}

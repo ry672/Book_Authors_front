@@ -7,12 +7,18 @@ import { UpdateBookAside } from "../components/UpdateBook";
 import { BookFiltersAside } from "../components/BookFilterAside";
 import plisIcon from "../images/icons8-plus-24.png";
 import { DeleteConfirm } from "../components/DeleteConfirm";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store";
+import { LogoutButton } from "../components/ButtonLogout";
 
 export const BooksPage = () => {
   const [page, setPage] = useState(1);
   const [take, setTake] = useState(5);
 
   const navigate = useNavigate();
+  const accessToken = useSelector(
+    (state: RootState) => state.author.accessToken
+  );
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -26,6 +32,12 @@ export const BooksPage = () => {
   const [search, setSearch] = useState("");
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+
+  useEffect(() => {
+    if (!accessToken) {
+      navigate("/", { replace: true });
+    }
+  }, [accessToken, navigate]);
 
   const exactPrice = useMemo(() => {
     const v = price.trim();
@@ -45,7 +57,13 @@ export const BooksPage = () => {
     [search, page, take, name, exactPrice]
   );
 
-  const { data: books, isLoading, isError } = useGetBookQuery(queryArgs);
+  const {
+    data: books,
+    isLoading,
+    isError,
+  } = useGetBookQuery(queryArgs, {
+    skip: !accessToken,
+  });
 
   const totalPages = Math.max(books?.pages ?? 1, 1);
 
@@ -103,6 +121,10 @@ export const BooksPage = () => {
     navigate(`/book-profile-page/${id}`);
   };
 
+  if (!accessToken) {
+    return null;
+  }
+
   return (
     <>
       <div className="m-4 flex items-end justify-between gap-3">
@@ -113,6 +135,7 @@ export const BooksPage = () => {
           setPage={setPage}
         />
 
+        <LogoutButton/>
         <button
           type="button"
           onClick={openCreate}

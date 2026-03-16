@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { AuthorResponse } from "./AuthorApi";
+import type { RootState } from "../store";
+import type { Author } from "./AuthorApi";
 import type { CategoryResponse } from "./CategoryApi";
 
 export interface BookResponse {
@@ -11,19 +12,33 @@ export interface BookResponse {
   description: string;
   link: string;
   is_deleted: boolean;
+  photos: string[];
   created_at: string;
   updated_at: string;
-  author: AuthorResponse;
+  author: Author;
   category: CategoryResponse;
 }
 
-export interface BookRequest {
+export interface BookFormValues {
   name: string;
   price: number;
   description: string;
   link: string;
   authorId: number;
   categoryId: number;
+  remove_photos?: boolean;
+  remove_photo_urls?: string[];
+}
+
+export interface CreateBookArgs {
+  data: BookFormValues;
+  files?: File[];
+}
+
+export interface PatchBookArgs {
+  id: number;
+  data: Partial<BookFormValues>;
+  files?: File[];
 }
 
 export interface BookPayload {
@@ -40,20 +55,62 @@ export type GetBooksArgs = {
   take: number;
   name?: string;
   price?: number;
-  minPrice?: number;
-  maxPrice?: number;
-};
-
-export type PatchBookArgs = {
-  id: number;
-  data: Partial<BookRequest>;
 };
 
 const API_BASE_URL = import.meta.env.VITE_EXCHANGE_API_BASE_URL;
 
+const buildBookFormData = (
+  data: Partial<BookFormValues>,
+  files?: File[]
+) => {
+  const formData = new FormData();
+
+  if (data.name !== undefined) formData.append("name", data.name.trim());
+  if (data.description !== undefined) {
+    formData.append("description", data.description.trim());
+  }
+  if (data.link !== undefined) formData.append("link", data.link.trim());
+  if (data.price !== undefined) formData.append("price", String(data.price));
+  if (data.authorId !== undefined) {
+    formData.append("authorId", String(data.authorId));
+  }
+  if (data.categoryId !== undefined) {
+    formData.append("categoryId", String(data.categoryId));
+  }
+  if (data.remove_photos !== undefined) {
+    formData.append("remove_photos", String(data.remove_photos));
+  }
+  if (
+    data.remove_photo_urls !== undefined &&
+    data.remove_photo_urls.length > 0
+  ) {
+    formData.append(
+      "remove_photo_urls",
+      JSON.stringify(data.remove_photo_urls)
+    );
+  }
+
+  files?.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  return formData;
+};
+
 export const bookApi = createApi({
   reducerPath: "bookApi",
-  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: API_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).author.accessToken;
+
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+
+      return headers;
+    },
+  }),
   tagTypes: ["Books", "Book", "Category", "Authors"],
   endpoints: (builder) => ({
     getBook: builder.query<BookPayload, GetBooksArgs>({
@@ -64,44 +121,51 @@ export const bookApi = createApi({
           ...(search ? { search } : {}),
           ...(name ? { name } : {}),
           ...(price !== undefined ? { price } : {}),
-          // ...(minPrice !== undefined ? { minPrice } : {}),
-          // ...(maxPrice !== undefined ? { maxPrice } : {}),
           page,
           take,
         },
       }),
-
       providesTags: (res) =>
         res
           ? [
               { type: "Books", id: "LIST" },
               ...res.rows.map((b) => ({ type: "Book" as const, id: b.id })),
-              { type: "Category", id: "LIST" }, 
+              { type: "Category", id: "LIST" },
               { type: "Authors", id: "LIST" },
             ]
-          : [{ type: "Books", id: "LIST" }, { type: "Category", id: "LIST" }, { type: "Authors", id: "LIST" }],
+          : [
+              { type: "Books", id: "LIST" },
+              { type: "Category", id: "LIST" },
+              { type: "Authors", id: "LIST" },
+            ],
     }),
 
     getBookById: builder.query<BookResponse, number>({
-      query: (id) => ({ url: `/books/${id}`, method: "GET" }),
+      query: (id) => ({
+        url: `/books/${id}`,
+        method: "GET",
+      }),
       providesTags: (_res, _err, id) => [{ type: "Book", id }],
     }),
 
-    postBook: builder.mutation<BookResponse, BookRequest>({
-      query: (payload) => ({
+    postBook: builder.mutation<BookResponse, CreateBookArgs>({
+      query: ({ data, files }) => ({
         url: "/books",
         method: "POST",
-        body: payload,
+        body: buildBookFormData(data, files),
       }),
-
-      invalidatesTags: [{ type: "Books", id: "LIST" }, { type: "Category", id: "LIST" }, { type: "Authors", id: "LIST" }],
+      invalidatesTags: [
+        { type: "Books", id: "LIST" },
+        { type: "Category", id: "LIST" },
+        { type: "Authors", id: "LIST" },
+      ],
     }),
 
     patchBook: builder.mutation<BookResponse, PatchBookArgs>({
-      query: ({ id, data }) => ({
+      query: ({ id, data, files }) => ({
         url: `/books/${id}`,
         method: "PATCH",
-        body: data,
+        body: buildBookFormData(data, files),
       }),
       invalidatesTags: (_res, _err, { id }) => [
         { type: "Books", id: "LIST" },

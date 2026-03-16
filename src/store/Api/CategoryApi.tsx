@@ -1,4 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
+import type { RootState } from "../store";
 
 export interface CategoryResponse {
   id: number;
@@ -37,7 +38,17 @@ const API_BASE_URL = import.meta.env.VITE_EXCHANGE_API_BASE_URL;
 
 export const categoryApi = createApi({
   reducerPath: "categoryApi",
-  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
+  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+          const token = (getState() as RootState).author.accessToken;
+    
+          if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+          }
+    
+          return headers;
+        },
+   }),
   tagTypes: ["Categories", "Category", "Books"],
   endpoints: (builder) => ({
     getCategory: builder.query<CategoryPayload, GetCategoriesArgs | void>({

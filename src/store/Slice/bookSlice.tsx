@@ -20,7 +20,7 @@ const initialState: BookState = {
 };
 
 const bookSlice = createSlice({
-  name: "author",
+  name: "book",
   initialState,
   reducers: {
     setBook(state, action: PayloadAction<BookResponse>) {

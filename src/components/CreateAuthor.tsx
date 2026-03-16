@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useDispatch } from "react-redux";
 import { usePostAuthorMutation } from "../store/Api/AuthorApi";
-import { setAuthor } from "../store/Slice/authorSlice";
 import { InputApp } from "../components/UX/InputApp";
 import { ButtonApp } from "../components/UX/ButtonApp";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +14,7 @@ interface SubmitForm {
   country: string;
 }
 
-const schema = yup.object({
+const schema: yup.ObjectSchema<SubmitForm> = yup.object({
   name: yup.string().trim().min(2, "minimum 2 string").required("Fill"),
   full_name: yup.string().trim().min(3, "minimum 3 string").required("Fill"),
   description: yup.string().trim().min(5, "minimum 5 string").required("Fill"),
@@ -35,7 +33,6 @@ export const CreateAuthorAside = ({
   const [preview, setPreview] = useState("");
   const [isLocked, setIsLocked] = useState(false);
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -55,6 +52,8 @@ export const CreateAuthorAside = ({
     mode: "onBlur",
   });
 
+  const loading = isSubmitting || isCreating || isLocked;
+
   useEffect(() => {
     if (!file) {
       setPreview("");
@@ -70,17 +69,15 @@ export const CreateAuthorAside = ({
   }, [file]);
 
   const onSubmit: SubmitHandler<SubmitForm> = async (formData) => {
-    if (isLocked || isCreating || isSubmitting) return;
+    if (loading) return;
 
     setIsLocked(true);
 
     try {
-      const createdAuthor = await postAuthor({
+      await postAuthor({
         data: formData,
         file,
       }).unwrap();
-
-      dispatch(setAuthor(createdAuthor));
 
       reset();
       setFile(null);
@@ -131,8 +128,6 @@ export const CreateAuthorAside = ({
             (error as { data?: { message?: string } }).data?.message ?? ""
           )
       : null;
-
-  const loading = isSubmitting || isCreating || isLocked;
 
   return (
     <form
