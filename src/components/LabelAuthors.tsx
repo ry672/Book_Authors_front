@@ -6,7 +6,8 @@ import {
   type Path,
 } from "react-hook-form";
 
-import { useGetAuthorQuery, type AuthorResponse } from "../store/Api/AuthorApi";
+import { useGetAuthorQuery} from "../store/Api/AuthorApi";
+import type { Author } from "../store/Slice/authorSlice";
 
 type Props<T extends FieldValues> = {
   control: Control<T>;
@@ -21,7 +22,7 @@ export function LabelAuthors<T extends FieldValues>({
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const authors: AuthorResponse[] = data?.rows ?? [];
+  const authors: Author[] = data?.rows ?? [];
 
   const filteredAutthors = useMemo(() => {
     return authors
