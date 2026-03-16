@@ -15,6 +15,8 @@ type FormValues = {
   full_name: string;
   description: string;
   country: string;
+  email: string;
+  password: string;
 };
 
 const schema = yup.object({
@@ -22,6 +24,8 @@ const schema = yup.object({
   full_name: yup.string().trim().min(3, "minimum 3 string").required("Fill"),
   description: yup.string().trim().min(5, "minimum 5 string").required("Fill"),
   country: yup.string().trim().min(2, "minimum 2 string").required("Fill"),
+  email: yup.string().trim().email("Invalid email").required("Fill"),
+  password: yup.string().trim().min(6, "minimum 6 string").required("Fill"),
 });
 
 export const UpdateAuthorAside = ({
@@ -53,6 +57,8 @@ export const UpdateAuthorAside = ({
       full_name: "",
       description: "",
       country: "",
+      email: "",
+      password: "",
     },
     resolver: yupResolver(schema),
     mode: "onBlur",
@@ -66,6 +72,8 @@ export const UpdateAuthorAside = ({
       full_name: author.full_name ?? "",
       description: author.description ?? "",
       country: author.country ?? "",
+      email: author.email ?? "",
+      password: author.password ?? "",
     });
 
     setFile(null);
@@ -280,6 +288,48 @@ export const UpdateAuthorAside = ({
           </>
         )}
       />
+      <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <InputApp
+                    {...field}
+                    disabled={loading}
+                    className="rounded-md border border-[#2D3748] bg-gray-900 px-2 py-1 placeholder:text-[14px]"
+                    classId="email"
+                    placeholder="Email"
+                    textArea="Email"
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-red-600">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </>
+              )}
+            />
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <InputApp
+                    {...field}
+                    disabled={loading}
+                    className="rounded-md border border-[#2D3748] bg-gray-900 px-2 py-1 placeholder:text-[14px]"
+                    classId="password"
+                    placeholder="Password"
+                    textArea="Password"
+                  />
+                  {errors.password && (
+                    <p className="text-xs text-red-600">
+                      {errors.password.message}
+                    </p>
+                  )}
+                </>
+              )}
+            />
 
       {backendMessage && (
         <p className="text-xs text-red-600">{backendMessage}</p>

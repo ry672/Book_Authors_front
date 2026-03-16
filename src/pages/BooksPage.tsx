@@ -9,7 +9,7 @@ import plisIcon from "../images/icons8-plus-24.png";
 import { DeleteConfirm } from "../components/DeleteConfirm";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
-import { LogoutButton } from "../components/ButtonLogout";
+
 
 export const BooksPage = () => {
   const [page, setPage] = useState(1);
@@ -135,7 +135,7 @@ export const BooksPage = () => {
           setPage={setPage}
         />
 
-        <LogoutButton/>
+       
         <button
           type="button"
           onClick={openCreate}

@@ -48,8 +48,15 @@ const authorSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
     },
+    addAuthorID(state, action: PayloadAction<number | null>) {
+      if (state.author) {
+        state.author.id = action.payload ?? 0;
+      } else if (action.payload !== null) {
+        state.author = { id: action.payload } as Author;
+      }
+    },
   },
 });
 
-export const { setAuthor, clearAuthor } = authorSlice.actions;
+export const { setAuthor, clearAuthor, addAuthorID } = authorSlice.actions;
 export default authorSlice.reducer;

@@ -11,6 +11,7 @@ export interface Author {
   is_deleted: boolean;
   author_photo?: string | null;
   email?: string;
+  password?: string;
   updatedAt: string;
   createdAt: string;
   books?: BookResponse[];
@@ -40,6 +41,8 @@ export type AuthorFormValues = {
   description?: string;
   country?: string;
   remove_photo?: string;
+  email: string;
+  password: string;
 };
 
 export type CreateAuthorRequest = {
@@ -70,6 +73,9 @@ const buildAuthorFormData = (
     formData.append("country", data.country.trim());
   if (data.remove_photo !== undefined)
     formData.append("remove_photo", data.remove_photo);
+  if (data.email !== undefined) formData.append("email", data.email.trim());
+  if (data.password !== undefined)
+    formData.append("password", data.password.trim());
 
   if (file) {
     formData.append("file", file);

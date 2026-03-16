@@ -6,9 +6,10 @@ import { AuthorPage } from "./pages/AuthorsPage";
 import { ProfileAuthorPage } from "./pages/AuthorProfilePage";
 import { BookProfilePage } from "./pages/BookPage";
 import { CategoryPage } from "./pages/CategoriesPage";
-import AmplitudeProvider from "./components/AmplitudeProvider";
+
 import { RegistrationPage } from "./pages/RegistrationPage";
 import { LoginPage } from "./pages/LoginPage";
+import { ProfilePage } from "./pages/ProfilePage";
 
 function Layout() {
   return (
@@ -26,7 +27,7 @@ function Layout() {
 
 export default function App() {
   return (
-    <AmplitudeProvider>
+   
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/registration-page" element={<RegistrationPage />} />
@@ -36,12 +37,12 @@ export default function App() {
           <Route path="/author-page" element={<AuthorPage />} />
           <Route path="/profile-author-page/:id" element={<ProfileAuthorPage />} />
           <Route path="/book-profile-page/:id" element={<BookProfilePage />} />
-          <Route path="/profile-page" element={<ProfileAuthorPage />} />
+          <Route path="/profile-page" element={<ProfilePage />} />
           <Route path="/category-page" element={<CategoryPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </AmplitudeProvider>
+   
   );
 }
